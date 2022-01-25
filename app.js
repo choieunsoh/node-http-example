@@ -2,18 +2,18 @@ const express = require("express");
 const http = require("http");
 const morgan = require("morgan");
 const path = require("path");
-const fs = require("fs");
+const rfs = require("rotating-file-stream");
 
 const hostname = "localhost";
 const port = 3000;
 
-const accessLog = fs.createWriteStream(
-  path.join(__dirname, "log", "access.log"),
-  { flags: "a" }
-);
+const accessLogStream = rfs.createStream("access.log", {
+  interval: "1d",
+  path: path.join(__dirname, "log"),
+});
 
 const app = express();
-app.use(morgan("combined", { stream: accessLog }));
+app.use(morgan("combined", { stream: accessLogStream }));
 
 app.use(express.static(path.join(__dirname, "public")));
 
